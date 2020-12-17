@@ -1,0 +1,5 @@
+export const CONTACT_TYPES = {
+  FETCH_LIST: "FETCH_LIST",
+  LOADING: "LOADING",
+  SET_DATA: "SET_DATA"
+}

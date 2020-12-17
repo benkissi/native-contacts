@@ -1,6 +1,3 @@
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
-
 export interface Contact {
   dataList: {
     showReportInaccurate: boolean;
@@ -29,16 +26,3 @@ export interface Contact {
   isAdmin: boolean;
   type: string;
 }
-
-export type RootStackParamList = {
-  Contacts: undefined;
-  Details: {id: number, iconColor: string}
-};
-
-
-export type ListScreenNavigationProp = StackNavigationProp<
-RootStackParamList,
-'Contacts'
-  >;
-
-export  type ListScreenRouteProp = RouteProp<RootStackParamList, 'Contacts'>;

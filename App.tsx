@@ -1,15 +1,19 @@
 import React from 'react';
+import {Provider} from 'react-redux';
+import {store} from './store/store';
 
-import { NavigationContainer } from "@react-navigation/native";
-import Navigator from "./navigation/AppNiavigator"
+import {NavigationContainer} from '@react-navigation/native';
+import Navigator from './navigation/AppNiavigator';
 
 declare const global: {HermesInternal: null | {}};
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Navigator/>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Navigator />
+      </NavigationContainer>
+    </Provider>
   );
 };
 
