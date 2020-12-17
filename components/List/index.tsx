@@ -9,23 +9,26 @@ import {
   Platform,
   ActivityIndicator,
   TextStyle,
+  ScrollView,
+  RefreshControl,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-import {fetchData} from '../../store/actions/contactActions';
+import {fetchData, setCallTime} from '../../store/actions/contactActions';
 import {RootState} from '../../store/store';
 
 import {ListScreenNavigationProp, ListScreenRouteProp} from './types';
 
-import {getFirstChar, truncate, randomNumber} from '../../utils';
+import {getFirstChar, truncate, randomNumber, getDuration} from '../../utils';
 import {COLORS} from '../../utils/colors';
 
 const WRAPPER: ViewStyle = {
   flex: 1,
   alignItems: 'center',
   justifyContent: 'center',
+  minHeight: '100%',
   backgroundColor: COLORS.light_bg,
 };
 
@@ -77,12 +80,24 @@ const LIST_WRAPPER: ViewStyle = {
   width: '100%',
 };
 
+const DURATION: TextStyle = {
+  color: COLORS.text,
+  fontSize: 12
+}
+
 interface Props {
   route: ListScreenRouteProp;
   navigation: ListScreenNavigationProp;
 }
 
+const wait = (timeout: number) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeout);
+  });
+};
+
 function ContactList({route, navigation}: Props) {
+  const [refreshing, setRefreshing] = React.useState(false);
   const {loading, list} = useSelector((store: RootState) => store.contacts);
   const dispatch = useDispatch();
 
@@ -100,7 +115,7 @@ function ContactList({route, navigation}: Props) {
     }, []),
   );
 
-  const openDialScreen = (phoneNumber: string) => {
+  const openDialScreen = (phoneNumber: string, id:string) => {
     let dial = '';
     if (Platform.OS === 'ios') {
       dial = `telprompt:${phoneNumber}`;
@@ -108,10 +123,15 @@ function ContactList({route, navigation}: Props) {
       dial = `tel:${phoneNumber}`;
     }
     console.log('dial', dial);
+    dispatch(setCallTime(id))
     Linking.openURL(dial);
   };
 
-  const _renderContact: ({item}: {item: any}) => JSX.Element = ({item}) => {
+  const _renderContact: ({
+    item,
+  }: {
+    item: any;
+  }) => JSX.Element = React.useCallback(({item}) => {
     const iconColor =
       COLORS.icon_colors[randomNumber(COLORS.icon_colors.length - 1)];
     return (
@@ -131,31 +151,43 @@ function ContactList({route, navigation}: Props) {
           </View>
         </TouchableOpacity>
         <View style={PHONE}>
-          <Text>16 hours</Text>
-          <TouchableOpacity onPress={() => openDialScreen(item.phoneNumber)}>
+          <Text style={DURATION}>{item.called? getDuration(item.called): "Not called" }</Text>
+          <TouchableOpacity onPress={() => openDialScreen(item.phoneNumber, item.enqId)}>
             <Icon name="mobile" size={30} color={iconColor} />
           </TouchableOpacity>
         </View>
       </View>
     );
-  };
+  }, []);
 
   const handleContactClick = (contactId: number, iconColor: string) => {
     navigation.navigate('Details', {
       id: contactId,
-      iconColor
+      iconColor,
     });
   };
 
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+
+    wait(2000).then(() => {
+      dispatch(fetchData());
+      setRefreshing(false);
+    });
+  }, []);
+
   return (
     <View style={WRAPPER}>
-      {loading ? (
+      {!list?.dataList?.length && loading ? (
         <View style={{width: '100%'}}>
           <ActivityIndicator size={50} color="red" />
         </View>
       ) : (
         <View style={LIST_WRAPPER}>
           <FlatList
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
             data={list.dataList}
             renderItem={_renderContact}
             keyExtractor={(item) => '' + item.enqId}

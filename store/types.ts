@@ -22,6 +22,7 @@ export interface Contact {
     location: string;
     isReportInaccurate: boolean;
     tag: string;
+    called?: number;
   }[];
   isAdmin: boolean;
   type: string;

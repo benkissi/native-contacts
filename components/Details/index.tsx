@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import { useSelector} from 'react-redux';
 import {findContact} from '../../store/selectors';
 
 import {View, Text, ViewStyle, TextStyle, Button, Alert, Platform, Linking} from 'react-native';

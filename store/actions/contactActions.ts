@@ -18,6 +18,11 @@ export const setData = (list: []) => ({
   payload: list
 })
 
+export const setCallTime = (id: string) => ({
+  type: CONTACT_TYPES.SET_CALL_TIME,
+  payload: id
+})
+
 export const fetchData = ():ThunkAction<void, RootState, unknown, Action<string>> => {
   return async (dispatch) => {
     try {

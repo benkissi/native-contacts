@@ -2,7 +2,7 @@ import { Contact } from '../types'
 import {CONTACT_TYPES} from '../actions/actionTypes'
 
 const INITIAL_STATE = {
-  list: [],
+  list: {} as Contact,
   loading: false
 }
 
@@ -18,6 +18,18 @@ function contactReducer(state =INITIAL_STATE, action: any) {
       return {
         ...state,
         loading: action.payload
+      }
+    }
+    case CONTACT_TYPES.SET_CALL_TIME: {
+      const contacts = state.list.dataList
+      const foundContact = contacts.find(item => item.enqId === action.payload)
+      
+      if (foundContact) {
+        foundContact.called = Date.now()
+      }
+
+      return {
+        ...state,
       }
     }
     default: 
